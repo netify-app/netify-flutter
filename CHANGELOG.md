@@ -1,3 +1,9 @@
+## 1.0.1
+
+### Fixed
+
+- Fixed README screenshots not displaying on pub.dev (using absolute URLs)
+
 ## 1.0.0
 
 ### Features
