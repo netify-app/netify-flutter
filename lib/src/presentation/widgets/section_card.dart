@@ -20,8 +20,11 @@ class SectionCard extends StatefulWidget {
 }
 
 class _SectionCardState extends State<SectionCard> {
+  static const double _maxHeight = 180.0;
+  static const int _maxLinesThreshold = 6;
+  static const int _maxCharsThreshold = 200;
+
   bool _isExpanded = false;
-  static const int _maxLines = 6;
 
   @override
   Widget build(BuildContext context) {
@@ -65,14 +68,43 @@ class _SectionCardState extends State<SectionCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SelectableText(
-                  widget.content,
-                  style: NetifyTextStyles.bodyMedium.copyWith(
-                    fontFamily: 'monospace',
-                    fontSize: 13,
+                if (_isExpanded)
+                  SelectableText(
+                    widget.content,
+                    style: NetifyTextStyles.bodyMedium.copyWith(
+                      fontFamily: 'monospace',
+                      fontSize: 13,
+                    ),
+                  )
+                else
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: _maxHeight),
+                    child: ShaderMask(
+                      shaderCallback: (Rect bounds) {
+                        return LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.white,
+                            Colors.white,
+                            Colors.white.withValues(alpha: 0.1),
+                          ],
+                          stops: const [0.0, 0.7, 1.0],
+                        ).createShader(bounds);
+                      },
+                      blendMode: BlendMode.dstIn,
+                      child: SingleChildScrollView(
+                        physics: const NeverScrollableScrollPhysics(),
+                        child: SelectableText(
+                          widget.content,
+                          style: NetifyTextStyles.bodyMedium.copyWith(
+                            fontFamily: 'monospace',
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                  maxLines: _isExpanded ? null : _maxLines,
-                ),
                 if (_shouldShowButton())
                   Padding(
                     padding: const EdgeInsets.only(top: NetifySpacing.sm),
@@ -82,11 +114,13 @@ class _SectionCardState extends State<SectionCard> {
                           _isExpanded = !_isExpanded;
                         });
                       },
-                      child: Text(
-                        _isExpanded ? 'Show Less' : 'Show More',
-                        style: NetifyTextStyles.bodySmall.copyWith(
-                          color: NetifyColors.primary,
-                          fontWeight: FontWeight.w600,
+                      child: Center(
+                        child: Text(
+                          _isExpanded ? 'Show Less' : 'Show More',
+                          style: NetifyTextStyles.bodySmall.copyWith(
+                            color: NetifyColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
@@ -100,15 +134,10 @@ class _SectionCardState extends State<SectionCard> {
   }
 
   bool _shouldShowButton() {
-    // We need layout constraints to calculate this properly.
-    // For simplicity, let's assume if line count > max lines.
-    // A better approach would be using LayoutBuilder, but simple line count check works for monospace.
+    // Simple heuristic: if content has many lines or is very long
     final lineCount = widget.content.split('\n').length;
-    if (lineCount > _maxLines) return true;
-
-    // If it's a long single line string, let it wrap (handled by SelectableText defaults)
-    // but maybe we want to expand that too? For now, focused on vertical height.
-    return widget.content.length > 300; // Fallback length check
+    if (lineCount > _maxLinesThreshold) return true;
+    return widget.content.length > _maxCharsThreshold;
   }
 
   void _copyToClipboard(BuildContext context) {

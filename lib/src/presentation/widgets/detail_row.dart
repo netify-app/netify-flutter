@@ -17,7 +17,7 @@ class DetailRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: NetifySpacing.sm),
+      padding: const EdgeInsets.symmetric(vertical: NetifySpacing.xs),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -1,12 +1,12 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../core/entities/network_log.dart';
 import '../../netify_main.dart';
+import '../../platform/platform.dart';
 import '../theme/netify_theme.dart';
 import '../widgets/log_list_tile.dart';
 import '../widgets/search_bar.dart';
@@ -35,11 +35,18 @@ class _NetifyPanelState extends State<NetifyPanel> {
   MethodFilter _methodFilter = MethodFilter.all;
   SortOption _sortOption = SortOption.newest;
   ViewMode _viewMode = ViewMode.list;
+  Timer? _debounceTimer;
 
   @override
   void dispose() {
     _searchController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
+  }
+
+  Future<void> _handleRefresh() async {
+    setState(() {});
+    await Future.delayed(const Duration(milliseconds: 300));
   }
 
   @override
@@ -171,8 +178,11 @@ class _NetifyPanelState extends State<NetifyPanel> {
               NetifySearchBar(
                 controller: _searchController,
                 onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
+                  _debounceTimer?.cancel();
+                  _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+                    setState(() {
+                      _searchQuery = value;
+                    });
                   });
                 },
               ),
@@ -197,25 +207,31 @@ class _NetifyPanelState extends State<NetifyPanel> {
                         }
 
                         if (_viewMode == ViewMode.grouped) {
-                          return _buildGroupedView(
-                              logs, favoriteIds, bottomPadding);
+                          return RefreshIndicator(
+                            onRefresh: _handleRefresh,
+                            child: _buildGroupedView(
+                                logs, favoriteIds, bottomPadding),
+                          );
                         }
 
-                        return ListView.builder(
-                          padding: EdgeInsets.only(
-                            bottom: NetifySpacing.lg + bottomPadding,
+                        return RefreshIndicator(
+                          onRefresh: _handleRefresh,
+                          child: ListView.builder(
+                            padding: EdgeInsets.only(
+                              bottom: NetifySpacing.lg + bottomPadding,
+                            ),
+                            itemCount: logs.length,
+                            itemBuilder: (context, index) {
+                              final log = logs[index];
+                              return LogListTile(
+                                log: log,
+                                isFavorite: favoriteIds.contains(log.id),
+                                onTap: () => _openLogDetail(log),
+                                onFavoriteToggle: () =>
+                                    Netify.toggleFavorite(log.id),
+                              );
+                            },
                           ),
-                          itemCount: logs.length,
-                          itemBuilder: (context, index) {
-                            final log = logs[index];
-                            return LogListTile(
-                              log: log,
-                              isFavorite: favoriteIds.contains(log.id),
-                              onTap: () => _openLogDetail(log),
-                              onFavoriteToggle: () =>
-                                  Netify.toggleFavorite(log.id),
-                            );
-                          },
                         );
                       },
                     );
@@ -713,17 +729,12 @@ class _NetifyPanelState extends State<NetifyPanel> {
           return;
       }
 
-      final directory = await getTemporaryDirectory();
+      final directoryPath = await platform.getTempDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final file = File('${directory.path}/netify_logs_$timestamp.$extension');
+      final file = File('$directoryPath/netify_logs_$timestamp.$extension');
       await file.writeAsString(content);
 
-      await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(file.path)],
-          subject: 'Netify Logs ($extension)',
-        ),
-      );
+      await platform.shareFile(file.path, 'application/$extension');
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -738,12 +749,7 @@ class _NetifyPanelState extends State<NetifyPanel> {
 
   Future<void> _shareLogs() async {
     final json = Netify.exportAsJson();
-    await SharePlus.instance.share(
-      ShareParams(
-        text: json,
-        subject: 'Netify Network Logs',
-      ),
-    );
+    await platform.shareText(json);
   }
 
   void _confirmClearLogs() {

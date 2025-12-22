@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'core/entities/netify_config.dart';
@@ -10,6 +9,7 @@ import 'core/repositories/log_repository.dart';
 import 'data/interceptor/netify_interceptor.dart';
 import 'data/repositories/log_repository_impl.dart';
 import 'presentation/pages/netify_panel.dart';
+import 'presentation/widgets/netify_bubble.dart';
 
 /// Netify - A lightweight, debug-only network inspector for Flutter apps.
 ///
@@ -27,17 +27,25 @@ class Netify {
   static NetifyConfig? _config;
   static Dio? _dio;
   static bool _isInitialized = false;
+  static OverlayEntry? _bubbleOverlay;
 
   Netify._();
+
+  /// Global navigator key - pass this to MaterialApp.navigatorKey
+  static final navigatorKey = GlobalKey<NavigatorState>();
 
   /// Initializes Netify with the given Dio instance and optional configuration.
   ///
   /// Must be called before using any other Netify methods.
+  ///
+  /// Set [enable] to false to disable Netify (useful for production).
+  /// Don't forget to add `navigatorKey: Netify.navigatorKey` to your MaterialApp!
   static Future<void> init({
     required Dio dio,
+    bool enable = true,
     NetifyConfig config = const NetifyConfig(),
   }) async {
-    if (config.showOnlyInDebug && !kDebugMode) {
+    if (!enable) {
       return;
     }
 
@@ -54,6 +62,69 @@ class Netify {
     dio.interceptors.add(_interceptor!);
 
     _isInitialized = true;
+
+    // Show bubble after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showBubble();
+    });
+  }
+
+  static void _showBubble() {
+    if (_bubbleOverlay != null) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final state = navigatorKey.currentState;
+      if (state == null) {
+        debugPrint('Netify: navigatorKey.currentState is null, retrying...');
+        // Retry after next frame
+        Future.delayed(const Duration(milliseconds: 100), _showBubble);
+        return;
+      }
+
+      final overlay = state.overlay;
+      if (overlay == null) {
+        debugPrint('Netify: Navigator overlay is null, retrying...');
+        // Retry after next frame
+        Future.delayed(const Duration(milliseconds: 100), _showBubble);
+        return;
+      }
+
+      debugPrint('Netify: Creating bubble overlay');
+      _bubbleOverlay = OverlayEntry(
+        builder: (context) => NetifyBubble(
+          onTap: () => _openPanel(),
+        ),
+      );
+
+      overlay.insert(_bubbleOverlay!);
+      debugPrint('Netify: Bubble overlay inserted successfully');
+    });
+  }
+
+  static void _openPanel() {
+    final context = navigatorKey.currentContext;
+    if (context != null) {
+      // Hide bubble when opening panel
+      _bubbleOverlay?.remove();
+
+      Navigator.of(context)
+          .push(
+        MaterialPageRoute(builder: (_) => const NetifyPanel()),
+      )
+          .then((_) {
+        // Show bubble again when panel is closed
+        if (_bubbleOverlay != null) {
+          final state = navigatorKey.currentState;
+          state?.overlay?.insert(_bubbleOverlay!);
+        }
+      });
+    }
+  }
+
+  /// Hides the floating bubble
+  static void hideBubble() {
+    _bubbleOverlay?.remove();
+    _bubbleOverlay = null;
   }
 
   /// Stream of network logs that updates when new logs are added.
@@ -226,11 +297,14 @@ class Netify {
 
   /// Shows the Netify panel as a new route.
   static void show(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const NetifyPanel(),
-      ),
-    );
+    final navigator = Navigator.maybeOf(context, rootNavigator: true);
+    if (navigator != null) {
+      navigator.push(
+        MaterialPageRoute(
+          builder: (_) => const NetifyPanel(),
+        ),
+      );
+    }
   }
 
   /// Returns the current Netify configuration.

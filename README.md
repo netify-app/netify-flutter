@@ -19,7 +19,7 @@ A lightweight, debug-only network inspector for Flutter apps using Dio HTTP clie
 - 🔁 **Replay Requests** - Re-send any captured request
 - 🌲 **Tree-Shakable** - Zero footprint in release builds
 - 📊 **Detailed Metrics** - Request time, response size, duration with color-coded indicators
-- 🪶 **Lightweight** - Minimal dependencies
+- 🪶 **Lightweight** - Native Android/iOS implementation, only 2 dependencies (Dio + screenshot)
 
 ## 📸 Screenshots
 
@@ -33,7 +33,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  netify: ^1.0.0
+  netify: ^2.0.0
   dio: ^5.4.0 # Required peer dependency
 ```
 
@@ -45,8 +45,6 @@ flutter pub get
 
 ## 🚀 Quick Start
 
-### 1. Initialize Netify
-
 ```dart
 import 'package:dio/dio.dart';
 import 'package:netify/netify.dart';
@@ -55,41 +53,23 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final dio = Dio();
-
-  // Initialize Netify
   await Netify.init(dio: dio);
 
-  runApp(MyApp(dio: dio));
+  runApp(const MyApp());
 }
-```
 
-### 2. Add the Floating Bubble
-
-Wrap your home widget with `NetifyWrapper`:
-
-```dart
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: NetifyWrapper(
-        child: HomePage(),
-      ),
+      navigatorKey: Netify.navigatorKey, // ← Add this line
+      home: HomePage(),
     );
   }
 }
 ```
 
-### 3. (Optional) Manual Access
-
-You can also open Netify programmatically:
-
-```dart
-// Open Netify panel
-Netify.show(context);
-```
-
-That's it! 🎉 A draggable bubble will appear on your screen.
+That's it! 🎉 The floating bubble will appear automatically.
 
 ## 📖 API Reference
 
@@ -102,9 +82,9 @@ await Netify.init(dio: dio);
 // With custom configuration
 await Netify.init(
   dio: dio,
+  enable: kDebugMode, // Only enable in debug mode
   config: const NetifyConfig(
     maxLogs: 1000,
-    showOnlyInDebug: true,
     entryMode: NetifyEntryMode.bubble,
   ),
 );

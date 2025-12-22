@@ -41,6 +41,8 @@ class NetifySearchBar extends StatelessWidget {
           hintStyle: NetifyTextStyles.bodyMedium.copyWith(
             color: NetifyColors.textHint,
           ),
+          filled: true,
+          fillColor: NetifyColors.surface,
           prefixIcon: Icon(
             Icons.search_rounded,
             color: NetifyColors.textHint,

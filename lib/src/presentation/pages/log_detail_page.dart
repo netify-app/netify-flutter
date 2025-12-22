@@ -3,13 +3,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 import 'package:screenshot/screenshot.dart';
 
 import '../../core/entities/network_log.dart';
 import '../../netify_main.dart';
+import '../../platform/platform.dart';
 import '../theme/netify_theme.dart';
 import '../widgets/detail_row.dart';
 import '../widgets/error_card.dart';
@@ -383,7 +382,7 @@ class _LogDetailPageState extends State<LogDetailPage>
                     subtitle: 'Command line format',
                     onTap: () {
                       Navigator.pop(context);
-                      _shareAs('curl');
+                      _shareContent('curl');
                     },
                   ),
                   _buildShareOption(
@@ -392,7 +391,7 @@ class _LogDetailPageState extends State<LogDetailPage>
                     subtitle: 'Full request/response data',
                     onTap: () {
                       Navigator.pop(context);
-                      _shareAs('json');
+                      _shareContent('json');
                     },
                   ),
                   _buildShareOption(
@@ -401,7 +400,7 @@ class _LogDetailPageState extends State<LogDetailPage>
                     subtitle: widget.log.url,
                     onTap: () {
                       Navigator.pop(context);
-                      _shareAs('url');
+                      _shareContent('url');
                     },
                   ),
                   const Divider(height: NetifySpacing.lg),
@@ -465,13 +464,12 @@ class _LogDetailPageState extends State<LogDetailPage>
     );
   }
 
-  Future<void> _shareAs(String format) async {
+  Future<void> _shareContent(String type) async {
     String content;
-    String subject = '${widget.log.method} ${widget.log.url}';
 
-    switch (format) {
+    switch (type) {
       case 'curl':
-        content = widget.log.toCurl();
+        content = Netify.generateCurl(widget.log);
         break;
       case 'json':
         content =
@@ -479,18 +477,12 @@ class _LogDetailPageState extends State<LogDetailPage>
         break;
       case 'url':
         content = widget.log.url;
-        subject = 'URL';
         break;
       default:
         return;
     }
 
-    await SharePlus.instance.share(
-      ShareParams(
-        text: content,
-        subject: subject,
-      ),
-    );
+    await platform.shareText(content);
   }
 
   void _copyToClipboard(String content, String label) {
@@ -519,17 +511,12 @@ class _LogDetailPageState extends State<LogDetailPage>
         delay: const Duration(milliseconds: 150),
       );
 
-      final tempDir = await getTemporaryDirectory();
+      final tempDirPath = await platform.getTempDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final file = File('${tempDir.path}/netify_log_$timestamp.png');
+      final file = File('$tempDirPath/netify_log_$timestamp.png');
       await file.writeAsBytes(image);
 
-      await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(file.path)],
-          subject: '${widget.log.method} ${widget.log.url}',
-        ),
-      );
+      await platform.shareFile(file.path, 'image/png');
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

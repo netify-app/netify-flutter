@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import '../../core/entities/network_log.dart';
+import '../../platform/platform.dart';
 import '../theme/netify_theme.dart';
 
 class LogShareSnapshot extends StatefulWidget {
@@ -19,8 +19,7 @@ class LogShareSnapshot extends StatefulWidget {
 
 class _LogShareSnapshotState extends State<LogShareSnapshot> {
   Future<String> _getAppName() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    return packageInfo.appName;
+    return await platform.getAppName();
   }
 
   @override

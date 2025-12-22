@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../theme/netify_theme.dart';
 
 class JsonViewer extends StatefulWidget {
+  static const double _jsonIndentPadding = 6.0;
   final dynamic data;
   final bool initiallyExpanded;
 
@@ -86,7 +87,7 @@ class _JsonViewerState extends State<JsonViewer> {
         ...data.asMap().entries.map((entry) {
           final isLast = entry.key == data.length - 1;
           return Padding(
-            padding: EdgeInsets.only(left: (indent + 1) * 16.0),
+            padding: const EdgeInsets.only(left: JsonViewer._jsonIndentPadding),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -104,9 +105,9 @@ class _JsonViewerState extends State<JsonViewer> {
             ),
           );
         }),
-        Padding(
-          padding: EdgeInsets.only(left: indent * 16.0),
-          child: const Text(
+        const Padding(
+          padding: EdgeInsets.only(left: JsonViewer._jsonIndentPadding),
+          child: Text(
             ']',
             style: TextStyle(
               fontFamily: 'monospace',
@@ -147,7 +148,7 @@ class _JsonViewerState extends State<JsonViewer> {
           final isLast = entry.key == entries.length - 1;
           final mapEntry = entry.value;
           return Padding(
-            padding: EdgeInsets.only(left: (indent + 1) * 16.0),
+            padding: const EdgeInsets.only(left: JsonViewer._jsonIndentPadding),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -181,9 +182,9 @@ class _JsonViewerState extends State<JsonViewer> {
             ),
           );
         }),
-        Padding(
-          padding: EdgeInsets.only(left: indent * 16.0),
-          child: const Text(
+        const Padding(
+          padding: EdgeInsets.only(left: JsonViewer._jsonIndentPadding),
+          child: Text(
             '}',
             style: TextStyle(
               fontFamily: 'monospace',
@@ -198,12 +199,12 @@ class _JsonViewerState extends State<JsonViewer> {
 }
 
 class _JsonColors {
-  static const Color keyColor = Color(0xFF6366F1); // Indigo 500
-  static const Color stringColor = Color(0xFF10B981); // Emerald 500
-  static const Color numberColor = Color(0xFFF59E0B); // Amber 500
-  static const Color boolColor = Color(0xFFEC4899); // Pink 500
-  static const Color nullColor = Color(0xFFEF4444); // Red 500
-  static const Color bracketColor = Color(0xFF94A3B8); // Slate 400
+  static const Color keyColor = Color(0xFF000000); // black
+  static const Color stringColor = Color(0xFF16A34A); // green - darker
+  static const Color numberColor = Color(0xFF2563EB); // blue - darker
+  static const Color boolColor = Color(0xFF2563EB); // blue - darker
+  static const Color nullColor = Color(0xFFDC2626); // red - darker
+  static const Color bracketColor = Color(0xFF000000); // black
 }
 
 class JsonSyntaxHighlighter extends StatelessWidget {

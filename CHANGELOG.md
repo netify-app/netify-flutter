@@ -1,3 +1,68 @@
+## 2.0.0
+
+### 🎉 Major Release - Native Implementation
+
+**Package is now ~380KB lighter!**
+
+### Breaking Changes
+
+- Replaced `share_plus`, `path_provider`, and `package_info_plus` with native Android/iOS code
+- These dependencies are no longer required
+- All functionality remains the same, just lighter and faster
+
+### Added
+
+- Native Android implementation using Kotlin
+- Native iOS implementation using Swift
+- Platform channel for cross-platform communication
+- Automatic floating bubble overlay - no wrapper needed!
+- Added `Netify.navigatorKey` for automatic bubble display
+- Added `enable` parameter to `Netify.init()` for easier control
+
+### Changed
+
+- Moved `showOnlyInDebug` from `NetifyConfig` to `enable` parameter in `init()`
+- Removed `NetifyWrapper` - no longer needed
+- Reduced package size by ~380KB (~38% reduction)
+
+### Removed
+
+- ❌ `share_plus` dependency
+- ❌ `path_provider` dependency
+- ❌ `package_info_plus` dependency
+
+### Migration Guide
+
+No code changes needed! Just update to 2.0.0 and enjoy the lighter package.
+
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final dio = Dio();
+  await Netify.init(dio: dio, enable: kDebugMode);
+  runApp(const MyApp());
+}
+
+MaterialApp(
+  navigatorKey: Netify.navigatorKey, // ← Required for bubble
+  home: HomePage(),
+)
+```
+
+## 1.0.4
+
+### Added
+
+- Automatic floating bubble overlay - no wrapper needed!
+- Added `Netify.navigatorKey` for automatic bubble display
+- Added `enable` parameter to `Netify.init()` for easier control
+- Bubble appears automatically after `Netify.init()`
+
+### Changed
+
+- Moved `showOnlyInDebug` from `NetifyConfig` to `enable` parameter in `init()`
+- Removed `NetifyWrapper` - no longer needed
+
 ## 1.0.3
 
 ### Fixed

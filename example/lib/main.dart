@@ -49,18 +49,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Netify Example',
-      navigatorKey: navigatorKey,
+      navigatorKey: Netify.navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      // Wrap home with NetifyWrapper (must be inside MaterialApp for Navigator access)
-      // Entry modes: bubble (default), none
-      home: NetifyWrapper(
-        entryMode: NetifyEntryMode.bubble,
-        child: HomePage(dio: dio),
-      ),
+      home: HomePage(dio: dio),
     );
   }
 }

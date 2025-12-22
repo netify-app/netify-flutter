@@ -23,9 +23,6 @@ class JsonSectionCard extends StatefulWidget {
 }
 
 class _JsonSectionCardState extends State<JsonSectionCard> {
-  bool _isExpanded = false;
-  static const double _maxHeight = 150.0;
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -65,74 +62,11 @@ class _JsonSectionCardState extends State<JsonSectionCard> {
           Divider(height: 1, color: NetifyColors.divider),
           Padding(
             padding: const EdgeInsets.all(NetifySpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (_isExpanded)
-                  _buildContent()
-                else
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxHeight: _maxHeight),
-                    child: ShaderMask(
-                      shaderCallback: (Rect bounds) {
-                        return LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.white,
-                            Colors.white,
-                            Colors.white.withValues(alpha: 0.1),
-                          ],
-                          stops: const [0.0, 0.7, 1.0],
-                        ).createShader(bounds);
-                      },
-                      blendMode: BlendMode.dstIn,
-                      child: SingleChildScrollView(
-                        physics: const NeverScrollableScrollPhysics(),
-                        child: _buildContent(),
-                      ),
-                    ),
-                  ),
-                if (_shouldShowButton())
-                  Padding(
-                    padding: const EdgeInsets.only(top: NetifySpacing.sm),
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _isExpanded = !_isExpanded;
-                        });
-                      },
-                      child: Center(
-                        child: Text(
-                          _isExpanded ? 'Show Less' : 'Show More',
-                          style: NetifyTextStyles.bodySmall.copyWith(
-                            color: NetifyColors.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+            child: _buildContent(),
           ),
         ],
       ),
     );
-  }
-
-  bool _shouldShowButton() {
-    // Simple heuristic: if it's a Map/List with > 3 items or String > 200 chars
-    if (widget.data is Map) {
-      return (widget.data as Map).length > 3;
-    }
-    if (widget.data is List) {
-      return (widget.data as List).length > 3;
-    }
-    if (widget.data is String) {
-      return (widget.data as String).length > 200;
-    }
-    return false;
   }
 
   Widget _buildContent() {
