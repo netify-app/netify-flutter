@@ -1,6 +1,6 @@
 name: netify_http
 description: HTTP adapter for Netify network inspector. Beautiful in-app debugging for dart:io http package.
-version: 3.0.0
+version: 3.0.1
 homepage: https://netify.dev
 repository: https://github.com/netify-app/netify-flutter
 issue_tracker: https://github.com/netify-app/netify-flutter/issues

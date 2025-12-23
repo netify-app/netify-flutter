@@ -16,7 +16,7 @@ void main() async {
   await NetifyHttp.init(
     client: client,
     config: NetifyConfig(
-      showNotification: true,
+      entryMode: NetifyEntryMode.bubble,
       callbacks: NetifyCallbacks(
         onRequest: (log) => debugPrint('📤 Request: ${log.method} ${log.url}'),
         onResponse: (log) => debugPrint('📥 Response: ${log.statusCode}'),

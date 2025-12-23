@@ -5,7 +5,6 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:netify_core/netify_core.dart';
 
 void main() {
   runApp(const NetifyCoreExample());

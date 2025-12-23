@@ -1,6 +1,6 @@
 name: netify_dio
 description: Dio adapter for Netify network inspector. Beautiful in-app debugging for Dio HTTP client.
-version: 3.0.0
+version: 3.0.1
 homepage: https://netify.dev
 repository: https://github.com/netify-app/netify-flutter
 issue_tracker: https://github.com/netify-app/netify-flutter/issues

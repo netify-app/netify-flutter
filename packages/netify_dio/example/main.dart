@@ -19,7 +19,7 @@ void main() async {
   await NetifyDio.init(
     dio: dio,
     config: NetifyConfig(
-      showNotification: true,
+      entryMode: NetifyEntryMode.bubble,
       callbacks: NetifyCallbacks(
         onRequest: (log) => debugPrint('📤 Request: ${log.method} ${log.url}'),
         onResponse: (log) => debugPrint('📥 Response: ${log.statusCode}'),

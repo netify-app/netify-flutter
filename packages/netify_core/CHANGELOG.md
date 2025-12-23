@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.0.1 - 2025-12-23
+
+### Added
+
+- Example app demonstrating package structure
+- Improved pub.dev score with example requirement
+
 ## 3.0.0 - 2025-12-23
 
 ### 🎉 Major Release - Multi-Client Architecture

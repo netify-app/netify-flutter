@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.1 - 2025-12-23
+
+### Added
+
+- Complete example app with JSONPlaceholder API integration
+- Demonstrates GET, POST, PUT, DELETE requests
+- Shows error handling and callbacks usage
+- Improved pub.dev score with example requirement
+
 ## 3.0.0 - 2025-12-23
 
 ### 🎉 Initial Release
