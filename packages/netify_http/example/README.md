@@ -38,7 +38,7 @@ This example uses [JSONPlaceholder](https://jsonplaceholder.typicode.com/), a fr
 await NetifyHttp.init(
   client: client,
   config: NetifyConfig(
-    showNotification: true,
+    entryMode: EntryMode.bubble,
     callbacks: NetifyCallbacks(
       onRequest: (log) => print('Request: ${log.url}'),
       onResponse: (log) => print('Response: ${log.statusCode}'),

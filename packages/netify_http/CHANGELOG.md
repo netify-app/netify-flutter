@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.2 - 2025-12-23
+
+### Changed
+
+- Restricted platform support to Android and iOS only
+- Removed misleading platform badges for web and desktop
+- Accurately reflects tested and supported platforms
+
 ## 3.0.1 - 2025-12-23
 
 ### Added
