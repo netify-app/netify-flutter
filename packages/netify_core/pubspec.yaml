@@ -5,8 +5,6 @@ homepage: https://netify.dev
 repository: https://github.com/netify-app/netify-flutter
 issue_tracker: https://github.com/netify-app/netify-flutter/issues
 documentation: https://netify.dev/docs
-organization: https://netify.dev
-organization: https://github.com/netify-app
 
 environment:
   sdk: ">=3.0.0 <4.0.0"

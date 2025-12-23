@@ -14,8 +14,7 @@ dependencies:
   flutter:
     sdk: flutter
   dio: ^5.4.0
-  netify_core:
-    path: ../netify_core
+  netify_core: ^3.0.0
 
 dev_dependencies:
   flutter_test:
