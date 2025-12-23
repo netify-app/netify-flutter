@@ -50,6 +50,14 @@ class LogRepositoryImpl implements LogRepository {
   }
 
   @override
+  void removeLog(String logId) {
+    _logs.removeWhere((log) => log.id == logId);
+    _favoriteIds.remove(logId);
+    _notifyListeners();
+    _notifyFavorites();
+  }
+
+  @override
   void clearLogs() {
     _logs.clear();
     _notifyListeners();

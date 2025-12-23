@@ -1,3 +1,54 @@
+## 2.1.0
+
+### ✨ New Features - Callbacks & Filters
+
+**Integrate Netify with your monitoring stack!**
+
+### Added
+
+- 🔌 **Callbacks System** - Integrate with Sentry, Firebase, or custom webhooks
+  - `onRequest` - Called when a request is sent
+  - `onResponse` - Called when a response is received
+  - `onError` - Called when a request fails
+  - `onSlowRequest` - Called when request exceeds duration threshold
+- 🎯 **Smart Filters** - Control what gets captured
+  - `captureStatusCodes` - Only capture specific HTTP status codes
+  - `captureSlowRequests` - Only capture requests slower than threshold
+  - `ignorePaths` - Ignore specific URL paths
+  - `ignoreHosts` - Ignore specific host domains
+- 📦 **Example Integrations** - Ready-to-use integration helpers
+  - Sentry integration example
+  - Firebase Performance integration example
+  - Custom webhook integration example
+
+### Changed
+
+- Updated `NetifyConfig` to support `callbacks` and `filters` parameters
+- Updated `NetifyInterceptor` to trigger callbacks at appropriate lifecycle events
+- Added `removeLog` method to `LogRepository` for filter-based log removal
+
+### Example
+
+```dart
+await Netify.init(
+  dio: dio,
+  config: NetifyConfig(
+    callbacks: NetifyCallbacks(
+      onError: (log) {
+        Sentry.captureException(
+          Exception('Network request failed: ${log.url}'),
+        );
+      },
+    ),
+    filters: NetifyFilters(
+      captureStatusCodes: [400, 401, 403, 404, 500],
+      captureSlowRequests: Duration(seconds: 3),
+      ignorePaths: ['/health', '/metrics'],
+    ),
+  ),
+);
+```
+
 ## 2.0.0
 
 ### 🎉 Major Release - Native Implementation

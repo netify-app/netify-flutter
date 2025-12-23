@@ -3,12 +3,17 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 
 import '../../core/entities/network_log.dart';
+import '../../core/entities/netify_config.dart';
 import '../../core/repositories/log_repository.dart';
 
 class NetifyInterceptor extends Interceptor {
   final LogRepository logRepository;
+  final NetifyConfig config;
 
-  NetifyInterceptor({required this.logRepository});
+  NetifyInterceptor({
+    required this.logRepository,
+    required this.config,
+  });
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -21,10 +26,22 @@ class NetifyInterceptor extends Interceptor {
       requestTime: DateTime.now(),
     );
 
-    options.extra['netify_log_id'] = log.id;
-    options.extra['netify_request_time'] = log.requestTime;
+    // Check if request should be captured based on filters
+    final shouldCapture = config.filters?.shouldCaptureRequest(log) ?? true;
 
-    logRepository.addLog(log);
+    if (shouldCapture) {
+      options.extra['netify_log_id'] = log.id;
+      options.extra['netify_request_time'] = log.requestTime;
+
+      logRepository.addLog(log);
+
+      // Trigger onRequest callback
+      try {
+        config.callbacks?.onRequest?.call(log);
+      } catch (e) {
+        // Silently ignore callback errors to not break the request
+      }
+    }
 
     handler.next(options);
   }
@@ -59,7 +76,37 @@ class NetifyInterceptor extends Interceptor {
         duration: duration,
       );
 
-      logRepository.updateLog(updatedLog);
+      // Check if response should be kept based on filters
+      final shouldCapture = config.filters?.shouldCapture(updatedLog) ?? true;
+
+      if (shouldCapture) {
+        logRepository.updateLog(updatedLog);
+
+        // Trigger onResponse callback
+        try {
+          config.callbacks?.onResponse?.call(updatedLog);
+        } catch (e) {
+          // Silently ignore callback errors
+        }
+
+        // Check for slow request and trigger callback if configured
+        if (config.filters?.captureSlowRequests != null &&
+            updatedLog.duration != null) {
+          if (updatedLog.duration! >= config.filters!.captureSlowRequests!) {
+            try {
+              config.callbacks?.onSlowRequest?.call(
+                updatedLog,
+                config.filters!.captureSlowRequests!,
+              );
+            } catch (e) {
+              // Silently ignore callback errors
+            }
+          }
+        }
+      } else {
+        // Remove log if it doesn't pass filters
+        logRepository.removeLog(logId);
+      }
     }
 
     handler.next(response);
@@ -99,7 +146,37 @@ class NetifyInterceptor extends Interceptor {
         error: _formatError(err),
       );
 
-      logRepository.updateLog(updatedLog);
+      // Check if error should be kept based on filters
+      final shouldCapture = config.filters?.shouldCapture(updatedLog) ?? true;
+
+      if (shouldCapture) {
+        logRepository.updateLog(updatedLog);
+
+        // Trigger onError callback
+        try {
+          config.callbacks?.onError?.call(updatedLog);
+        } catch (e) {
+          // Silently ignore callback errors
+        }
+
+        // Check for slow request even on error
+        if (config.filters?.captureSlowRequests != null &&
+            updatedLog.duration != null) {
+          if (updatedLog.duration! >= config.filters!.captureSlowRequests!) {
+            try {
+              config.callbacks?.onSlowRequest?.call(
+                updatedLog,
+                config.filters!.captureSlowRequests!,
+              );
+            } catch (e) {
+              // Silently ignore callback errors
+            }
+          }
+        }
+      } else {
+        // Remove log if it doesn't pass filters
+        logRepository.removeLog(logId);
+      }
     }
 
     handler.next(err);

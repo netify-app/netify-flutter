@@ -10,6 +10,7 @@ abstract class LogRepository {
 
   void addLog(NetworkLog log);
   void updateLog(NetworkLog log);
+  void removeLog(String logId);
   void clearLogs();
   List<NetworkLog> searchLogs(String query);
 

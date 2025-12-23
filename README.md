@@ -17,6 +17,8 @@ A lightweight, debug-only network inspector for Flutter apps using Dio HTTP clie
 - 📤 **Export Options** - Copy as JSON/HAR or save to file
 - 🔄 **cURL Generation** - Generate cURL commands for any request
 - 🔁 **Replay Requests** - Re-send any captured request
+- 🔌 **Callbacks & Integrations** - Integrate with Sentry, Firebase, or custom webhooks
+- 🎯 **Smart Filters** - Capture only errors, slow requests, or specific endpoints
 - 🌲 **Tree-Shakable** - Zero footprint in release builds
 - 📊 **Detailed Metrics** - Request time, response size, duration with color-coded indicators
 - 🪶 **Lightweight** - Native Android/iOS implementation, only 2 dependencies (Dio + screenshot)
@@ -83,9 +85,15 @@ await Netify.init(dio: dio);
 await Netify.init(
   dio: dio,
   enable: kDebugMode, // Only enable in debug mode
-  config: const NetifyConfig(
+  config: NetifyConfig(
     maxLogs: 1000,
     entryMode: NetifyEntryMode.bubble,
+    callbacks: NetifyCallbacks(
+      onError: (log) => print('Request failed: ${log.url}'),
+    ),
+    filters: NetifyFilters(
+      captureStatusCodes: [400, 401, 403, 404, 500],
+    ),
   ),
 );
 ```
@@ -134,6 +142,113 @@ String curl = Netify.generateCurl(log);
 Netify.clearLogs();
 ```
 
+### Callbacks & Integrations
+
+Netify supports callbacks to integrate with external monitoring services:
+
+```dart
+// Basic callbacks
+await Netify.init(
+  dio: dio,
+  config: NetifyConfig(
+    callbacks: NetifyCallbacks(
+      onRequest: (log) {
+        print('Request sent: ${log.method} ${log.url}');
+      },
+      onResponse: (log) {
+        print('Response received: ${log.statusCode}');
+      },
+      onError: (log) {
+        print('Request failed: ${log.error}');
+      },
+      onSlowRequest: (log, threshold) {
+        print('Slow request: ${log.url} took ${log.duration}');
+      },
+    ),
+  ),
+);
+```
+
+#### Sentry Integration
+
+```dart
+import 'package:netify/netify.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+
+await Netify.init(
+  dio: dio,
+  config: NetifyConfig(
+    callbacks: NetifyCallbacks(
+      onError: (log) {
+        Sentry.captureException(
+          Exception('Network request failed: ${log.url}'),
+          hint: Hint.withMap({
+            'statusCode': log.statusCode,
+            'method': log.method,
+          }),
+        );
+      },
+    ),
+  ),
+);
+```
+
+#### Firebase Performance Integration
+
+```dart
+import 'package:firebase_performance/firebase_performance.dart';
+
+final metrics = <String, HttpMetric>{};
+
+await Netify.init(
+  dio: dio,
+  config: NetifyConfig(
+    callbacks: NetifyCallbacks(
+      onRequest: (log) {
+        final metric = FirebasePerformance.instance.newHttpMetric(
+          log.url,
+          HttpMethod.Get,
+        );
+        metric.start();
+        metrics[log.id] = metric;
+      },
+      onResponse: (log) {
+        final metric = metrics.remove(log.id);
+        if (metric != null && log.statusCode != null) {
+          metric.httpResponseCode = log.statusCode!;
+          metric.stop();
+        }
+      },
+    ),
+  ),
+);
+```
+
+### Filters
+
+Control which requests are captured:
+
+```dart
+await Netify.init(
+  dio: dio,
+  config: NetifyConfig(
+    filters: NetifyFilters(
+      // Only capture error responses
+      captureStatusCodes: [400, 401, 403, 404, 500, 502, 503],
+
+      // Only capture slow requests (>3 seconds)
+      captureSlowRequests: Duration(seconds: 3),
+
+      // Ignore health check endpoints
+      ignorePaths: ['/health', '/metrics', '/ping'],
+
+      // Ignore analytics domains
+      ignoreHosts: ['analytics.google.com', 'firebase.google.com'],
+    ),
+  ),
+);
+```
+
 ### Dispose
 
 ```dart
@@ -167,11 +282,32 @@ Navigator.push(
 
 ## ⚙️ Configuration Options
 
-| Option            | Type              | Default                  | Description                              |
-| ----------------- | ----------------- | ------------------------ | ---------------------------------------- |
-| `maxLogs`         | `int`             | `500`                    | Maximum number of logs to keep in memory |
-| `showOnlyInDebug` | `bool`            | `true`                   | Only initialize in debug mode            |
-| `entryMode`       | `NetifyEntryMode` | `NetifyEntryMode.bubble` | Entry point mode (`bubble` or `none`)    |
+### NetifyConfig
+
+| Option      | Type              | Default                  | Description                                |
+| ----------- | ----------------- | ------------------------ | ------------------------------------------ |
+| `maxLogs`   | `int`             | `500`                    | Maximum number of logs to keep in memory   |
+| `entryMode` | `NetifyEntryMode` | `NetifyEntryMode.bubble` | Entry point mode (`bubble` or `none`)      |
+| `callbacks` | `NetifyCallbacks` | `null`                   | Callbacks for integrations                 |
+| `filters`   | `NetifyFilters`   | `null`                   | Filters for controlling what gets captured |
+
+### NetifyCallbacks
+
+| Callback        | Parameters               | Description                           |
+| --------------- | ------------------------ | ------------------------------------- |
+| `onRequest`     | `NetworkLog`             | Called when a request is sent         |
+| `onResponse`    | `NetworkLog`             | Called when a response is received    |
+| `onError`       | `NetworkLog`             | Called when a request fails           |
+| `onSlowRequest` | `NetworkLog`, `Duration` | Called when request exceeds threshold |
+
+### NetifyFilters
+
+| Filter                | Type           | Description                            |
+| --------------------- | -------------- | -------------------------------------- |
+| `captureStatusCodes`  | `List<int>`    | Only capture these HTTP status codes   |
+| `captureSlowRequests` | `Duration`     | Only capture requests slower than this |
+| `ignorePaths`         | `List<String>` | Ignore requests to these URL paths     |
+| `ignoreHosts`         | `List<String>` | Ignore requests to these hosts         |
 
 ## 🏗️ Architecture
 

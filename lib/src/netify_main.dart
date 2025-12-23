@@ -57,7 +57,10 @@ class Netify {
     _dio = dio;
 
     _logRepository = LogRepositoryImpl(config: config);
-    _interceptor = NetifyInterceptor(logRepository: _logRepository!);
+    _interceptor = NetifyInterceptor(
+      logRepository: _logRepository!,
+      config: config,
+    );
 
     dio.interceptors.add(_interceptor!);
 
