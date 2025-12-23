@@ -1,7 +1,12 @@
 name: netify_core
-description: Core network inspection functionality for Flutter - client-agnostic
+description: Core network inspection functionality for Flutter. Client-agnostic foundation for Netify adapters.
 version: 3.0.0
-homepage: https://github.com/ricoerlan/netify
+homepage: https://netify.dev
+repository: https://github.com/netify-app/netify-flutter
+issue_tracker: https://github.com/netify-app/netify-flutter/issues
+documentation: https://netify.dev/docs
+organization: https://netify.dev
+organization: https://github.com/netify-app
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
