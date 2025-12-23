@@ -1,0 +1,19 @@
+name: netify_core
+description: Core network inspection functionality for Flutter - client-agnostic
+version: 3.0.0
+homepage: https://github.com/ricoerlan/netify
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  screenshot: ^2.1.0
+  rxdart: ^0.27.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
