@@ -12,3 +12,4 @@ export 'src/presentation/pages/netify_panel.dart';
 export 'src/presentation/pages/log_detail_page.dart';
 export 'src/presentation/pages/insights_page.dart';
 export 'src/presentation/theme/netify_theme.dart';
+export 'src/presentation/widgets/netify_bubble.dart';
