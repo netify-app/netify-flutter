@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../core/entities/network_log.dart';
+import '../../entities/network_log.dart';
 import '../theme/netify_theme.dart';
 
 class LogListTile extends StatelessWidget {

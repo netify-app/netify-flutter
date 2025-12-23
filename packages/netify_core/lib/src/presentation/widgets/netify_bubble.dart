@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
-import '../../netify_main.dart';
+import '../../entities/network_log.dart';
 import '../theme/netify_theme.dart';
 
 class NetifyBubble extends StatefulWidget {
   final VoidCallback onTap;
   final Alignment initialAlignment;
+  final Stream<List<NetworkLog>> logsStream;
+  final List<NetworkLog> initialLogs;
 
   const NetifyBubble({
     super.key,
     required this.onTap,
+    required this.logsStream,
+    this.initialLogs = const [],
     this.initialAlignment = Alignment.bottomRight,
   });
 
@@ -69,9 +73,9 @@ class _NetifyBubbleState extends State<NetifyBubble>
     // Initialize position only once
     _initializePosition(screenSize, safeArea);
 
-    return StreamBuilder<List>(
-      stream: Netify.logsStream,
-      initialData: Netify.logs,
+    return StreamBuilder<List<NetworkLog>>(
+      stream: widget.logsStream,
+      initialData: widget.initialLogs,
       builder: (context, snapshot) {
         final count = snapshot.data?.length ?? 0;
 

@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import '../../core/entities/network_log.dart';
-import '../../core/entities/netify_config.dart';
-import '../../core/repositories/log_repository.dart';
+import '../entities/network_log.dart';
+import '../entities/netify_config.dart';
+import '../repositories/log_repository.dart';
 
 class LogRepositoryImpl implements LogRepository {
   final NetifyConfig config;

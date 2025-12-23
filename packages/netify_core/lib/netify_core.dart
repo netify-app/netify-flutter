@@ -2,6 +2,7 @@ library netify_core;
 
 export 'src/adapters/netify_adapter.dart';
 export 'src/callbacks/netify_callbacks.dart';
+export 'src/core/netify_interface.dart';
 export 'src/entities/netify_config.dart';
 export 'src/entities/network_log.dart';
 export 'src/filters/netify_filters.dart';

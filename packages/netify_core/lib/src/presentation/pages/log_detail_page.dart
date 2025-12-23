@@ -6,8 +6,8 @@ import 'package:flutter/services.dart';
 
 import 'package:screenshot/screenshot.dart';
 
-import '../../core/entities/network_log.dart';
-import '../../netify_main.dart';
+import '../../core/netify_interface.dart';
+import '../../entities/network_log.dart';
 import '../../platform/platform.dart';
 import '../theme/netify_theme.dart';
 import '../widgets/detail_row.dart';

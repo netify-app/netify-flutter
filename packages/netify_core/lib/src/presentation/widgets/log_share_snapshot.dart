@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import '../../core/entities/network_log.dart';
+import '../../entities/network_log.dart';
 import '../../platform/platform.dart';
 import '../theme/netify_theme.dart';
 

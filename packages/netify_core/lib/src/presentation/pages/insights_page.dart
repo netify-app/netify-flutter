@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../core/entities/network_log.dart';
-import '../../netify_main.dart';
+import '../../core/netify_interface.dart';
+import '../../entities/network_log.dart';
 import '../theme/netify_theme.dart';
 
 class InsightsPage extends StatelessWidget {

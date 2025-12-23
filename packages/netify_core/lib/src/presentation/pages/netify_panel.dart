@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../core/entities/network_log.dart';
-import '../../netify_main.dart';
+import '../../core/netify_interface.dart';
+import '../../entities/network_log.dart';
 import '../../platform/platform.dart';
 import '../theme/netify_theme.dart';
 import '../widgets/log_list_tile.dart';
