@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.0.3 - 2025-12-24
+
+### Changed
+
+- Updated dependency on `netify_core` to v3.0.3 for Flutter 3.35.0+ compatibility
+- Ensures compatibility with latest Flutter SDK versions
+
 ## 3.0.2 - 2025-12-23
 
 ### Changed
