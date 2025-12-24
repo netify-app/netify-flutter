@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.3 - 2025-12-24
+
+### Fixed
+
+- Updated `screenshot` dependency from `^2.1.0` to `^3.0.0` for Flutter 3.35.0+ compatibility
+- Updated `rxdart` dependency to `^0.28.0`
+- Fixes `ViewConfiguration` API breaking changes in Flutter 3.35.0
+
 ## 3.0.2 - 2025-12-23
 
 ### Changed
